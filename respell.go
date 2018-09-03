@@ -13,6 +13,7 @@ import (
 )
 
 var whitespace = regexp.MustCompile("\\s+")
+var dictWord = regexp.MustCompile("^[A-Z']+")
 
 // Mapping from ARPAbet phonetic transcription codes to respelling
 var spelling = map[string]string{
@@ -80,6 +81,9 @@ func readDict() map[string]string {
         }
         toks := whitespace.Split(line, -1)
         if len(toks) < 2 {
+            continue
+        }
+        if dictWord.MatchString(toks[0]) {
             continue
         }
         dict[toks[0]] = phonetic(toks[1:])
