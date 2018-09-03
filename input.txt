@@ -12,6 +12,12 @@
 
 // apply-case returns the word b with case modified to match the case of word a.
 
+path to
+
+show stressed syllables with accents
+
+stress accents
+
 upper lower title case
 
 buffer

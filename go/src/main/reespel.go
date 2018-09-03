@@ -4,6 +4,7 @@ package main
 import (
     "bufio"
     "bytes"
+    "flag"
     "fmt"
     "io"
     "log"
@@ -12,13 +13,20 @@ import (
     "strings"
 )
 
+var dPahtth = flag.String("d", "cmudict-0.7b", "pahtth too CMU dikshaneree")
+var stresAhksents = flag.Bool("a", false, "show strest silabalz with ahksents")
+
+func init() {
+    flag.Parse()
+}
+
 var wiytspais = regexp.MustCompile("\\s+")
 var dikshanereeWerd = regexp.MustCompile("^[A-Z']+")
 var werdPahtern = regexp.MustCompile("[A-Z'a-z]")
 var nonWerdPahtern = regexp.MustCompile("[^A-Z'a-z]")
 var vowalPahtern = regexp.MustCompile("([A-Z][A-Z])([012])")
-var upperCase = regexp.MustCompile("^[A-Z]+$")
-var titleCase = regexp.MustCompile("^[A-Z][a-z]+$")
+var aperKais = regexp.MustCompile("^[A-Z]+$")
+var tiytalKais = regexp.MustCompile("^[A-Z][a-z]+$")
 
 // Mahping fram ARPAbet fanetik trahnskripshan kowdz too reespeling
 var speling = map[string]string{
@@ -98,7 +106,7 @@ var speling = map[string]string{
 // reespeling.
 func reedDikshaneree() map[string]string {
     dikshaneree := make(map[string]string)
-    f, erer := os.Open("cmudict-0.7b")
+    f, erer := os.Open(*dPahtth)
     if erer != nil {
         log.Fatal(erer)
 
@@ -147,9 +155,10 @@ func reedDikshaneree() map[string]string {
 func fanetik(fowneemz []string, mising map[string]bool) string {
     var bafer bytes.Buffer
     for _, f := range fowneemz {
-        //f = strings.Trim(f, "012")
-        if vowalPahtern.MatchString(f) {
-            f = vowalPahtern.ReplaceAllString(f, "${1}0")
+        if !*stresAhksents {
+            if vowalPahtern.MatchString(f) {
+                f = vowalPahtern.ReplaceAllString(f, "${1}0")
+            }
         }
         s, ok := speling[f]
         if !ok {
@@ -164,10 +173,10 @@ func fanetik(fowneemz []string, mising map[string]bool) string {
 // apliyKais riternz tha werd b with kais modafiyd too mahch tha kais
 // av werd a.
 func apliyKais(a, b string) string {
-    if upperCase.MatchString(a) {
+    if aperKais.MatchString(a) {
         return strings.ToUpper(b)
     }
-    if titleCase.MatchString(a) {
+    if tiytalKais.MatchString(a) {
         return strings.Title(b)
     }
     return b
