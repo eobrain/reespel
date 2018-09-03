@@ -10,6 +10,9 @@
 
 // read keeps on reading bytes from the reader as long as they match the given regular expression, or until there is an EOF. It returns the characters bytes read as a string.  It returns an error of io.EOF if the end of the file is encountered.
 
+// apply-case returns the word b with case modified to match the case of word a.
+
+upper lower title case
 
 buffer
 byte

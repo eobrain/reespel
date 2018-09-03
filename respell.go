@@ -17,6 +17,8 @@ var dikshanereeWerd = regexp.MustCompile("^[A-Z']+")
 var werdPahtern = regexp.MustCompile("[A-Z'a-z]")
 var nonWerdPahtern = regexp.MustCompile("[^A-Z'a-z]")
 var vowalPahtern = regexp.MustCompile("([A-Z][A-Z])([012])")
+var upperCase = regexp.MustCompile("^[A-Z]+$")
+var titleCase = regexp.MustCompile("^[A-Z][a-z]+$")
 
 // Mahping fram ARPAbet fanetik trahnskripshan kowdz too reespeling
 var speling = map[string]string{
@@ -159,13 +161,25 @@ func fanetik(fowneemz []string, mising map[string]bool) string {
     return bafer.String() //  + "[" + strings.Join(fowneemz, "") + "]"
 }
 
+// apliyKais riternz tha werd b with kais modafiyd too mahch tha kais
+// av werd a.
+func apliyKais(a, b string) string {
+    if upperCase.MatchString(a) {
+        return strings.ToUpper(b)
+    }
+    if titleCase.MatchString(a) {
+        return strings.Title(b)
+    }
+    return b
+}
+
 // reespell riternz tha reespeling av a werd, yoozing tha givan dikshaneree,
 func reespel(dikshaneree map[string]string, werd string) string {
     fanetik, ok := dikshaneree[strings.ToUpper(strings.Trim(werd, ".,"))]
     if !ok {
         return werd
     }
-    return fanetik
+    return apliyKais(werd, fanetik)
 }
 
 // reed keeps on reeding biyts fram tha reeder ahz loung ahz thai
