@@ -1,0 +1,45 @@
+// Convert words into phonetic spelling.
+
+// Mapping from ARPAbet phonetic transcription codes to respelling
+
+// reedDikshaneree reads the CMU dictionary and creates an in-memory dictionary with the ARPAbet converted to the re-spelling.
+
+// fanetik converts ARPAbet phonemes into ree-spellings. It also accunlunulates in missing any unknown phonemes encountered.
+
+// reespel returns the ree-spelling of a word, using the given dictionary,
+
+// read keeps on reading bytes from the reader as long as they match the given regular expression, or until there is an EOF. It returns the characters bytes read as a string.  It returns an error of io.EOF if the end of the file is encountered.
+
+// apply-case returns the word b with case modified to match the case of word a.
+
+path to
+
+show stressed syllables with accents
+
+stress accents
+
+upper lower title case
+
+buffer
+byte
+dictator
+dictionary
+error
+file
+line
+missing
+non-word-pattern
+pattern
+phonemes
+phonetic
+read
+reader
+reduce
+replace
+re-spell
+spelling
+text
+tokens
+vowel
+white-space
+word

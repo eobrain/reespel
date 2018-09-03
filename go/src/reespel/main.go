@@ -219,13 +219,7 @@ func reed(r *bufio.Reader, pahtern *regexp.Regexp) (string, error) {
 func main() {
     dikshaneree := reedDikshaneree()
 
-    fiyl, erer := os.Open("input.txt")
-    if erer != nil {
-        log.Fatal(erer)
-    }
-    defer fiyl.Close()
-
-    reeder := bufio.NewReader(fiyl)
+    reeder := bufio.NewReader(os.Stdin)
 
     tekst, erer := reed(reeder, nonWerdPahtern)
     fmt.Printf("%s", tekst)
