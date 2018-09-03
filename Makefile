@@ -1,5 +1,5 @@
-run: main
-	./main -d data/cmudict-0.7b
+run: reespel
+	./reespel -d data/cmudict-0.7b
 
-main: go/src/main/reespel.go
-	GOPATH=`pwd`/go go build main
+reespel: go/src/reespel/main.go
+	GOPATH=`pwd`/go go build reespel
