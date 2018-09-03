@@ -14,6 +14,8 @@ import (
 
 var whitespace = regexp.MustCompile("\\s+")
 var dictWord = regexp.MustCompile("^[A-Z']+")
+var wordPattern = regexp.MustCompile("[A-Z'a-z]")
+var nonWordPattern = regexp.MustCompile("[^A-Z'a-z]")
 
 // Mapping from ARPAbet phonetic transcription codes to respelling
 var spelling = map[string]string{
@@ -83,7 +85,7 @@ func readDict() map[string]string {
         if len(toks) < 2 {
             continue
         }
-        if dictWord.MatchString(toks[0]) {
+        if !dictWord.MatchString(toks[0]) {
             continue
         }
         dict[toks[0]] = phonetic(toks[1:])
@@ -113,25 +115,54 @@ func respell(dict map[string]string, w string) string {
     return ph
 }
 
+func read(r *bufio.Reader, patt *regexp.Regexp) (string, error) {
+    var buffer bytes.Buffer
+    var err error
+    for {
+        var b byte
+        b, err = r.ReadByte()
+        if err != nil {
+            break
+        }
+        if !patt.Match([]byte{b}) {
+            r.UnreadByte()
+            break
+        }
+        buffer.WriteByte(b)
+    }
+    if err != nil && err != io.EOF {
+        log.Fatal(err)
+    }
+    return buffer.String(), err
+}
+
 func main() {
     dict := readDict()
 
-    file, err := os.Open("input.txt")
+    f, err := os.Open("input.txt")
     if err != nil {
         log.Fatal(err)
     }
-    defer file.Close()
+    defer f.Close()
 
-    scanner := bufio.NewScanner(file)
-    scanner.Split(bufio.ScanWords)
+    r := bufio.NewReader(f)
 
-    for scanner.Scan() {
-        fmt.Printf("%s ", respell(dict, scanner.Text()))
-
+    w, err := read(r, nonWordPattern)
+    fmt.Printf("%s", w)
+    if err == io.EOF {
+        return
     }
+    for {
+        w, err = read(r, wordPattern)
+        fmt.Printf("%s", respell(dict, w))
+        if err == io.EOF {
+            return
+        }
 
-    if err := scanner.Err(); err != nil {
-        log.Fatal(err)
+        w, err = read(r, nonWordPattern)
+        fmt.Printf("%s", w)
+        if err == io.EOF {
+            return
+        }
     }
-
 }
