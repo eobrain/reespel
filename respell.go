@@ -1,4 +1,4 @@
-// Convert words into phometic spelling.
+// Konvert werdz intoo fanehtik sspehling.
 package main
 
 import (
@@ -12,13 +12,13 @@ import (
     "strings"
 )
 
-var whitespace = regexp.MustCompile("\\s+")
-var dictWord = regexp.MustCompile("^[A-Z']+")
-var wordPattern = regexp.MustCompile("[A-Z'a-z]")
-var nonWordPattern = regexp.MustCompile("[^A-Z'a-z]")
+var wiytsspaiss = regexp.MustCompile("\\s+")
+var diktWerd = regexp.MustCompile("^[A-Z']+")
+var werdPahtern = regexp.MustCompile("[A-Z'a-z]")
+var nonWerdPahtern = regexp.MustCompile("[^A-Z'a-z]")
 
-// Mapping from ARPAbet phonetic transcription codes to respelling
-var spelling = map[string]string{
+// Mahping fram ARPAbet fanehtik trahnsskripshan kohdz too respelling
+var sspehling = map[string]string{
     "AA": "o",  // ô ɑ   odd     AA D        od
     "AE": "ah", // â æ   at      AE T        aht
     "AH": "a",  // û ʌ   hut     HH AH T     haht
@@ -60,11 +60,11 @@ var spelling = map[string]string{
     "ZH": "j",  //   ʒ   seizure S IY ZH ER  seejer
 }
 
-func readDict() map[string]string {
-    dict := make(map[string]string)
-    f, err := os.Open("cmudict-0.7b")
-    if err != nil {
-        log.Fatal(err)
+func rehdDikt() map[string]string {
+    dikt := make(map[string]string)
+    f, ehr := os.Open("cmudict-0.7b")
+    if ehr != nil {
+        log.Fatal(ehr)
 
     }
     defer f.Close()
@@ -72,96 +72,96 @@ func readDict() map[string]string {
 
     var n int
     for {
-        var line string
-        line, err = r.ReadString('\n')
-        if err != nil {
+        var liyn string
+        liyn, ehr = r.ReadString('\n')
+        if ehr != nil {
             break
         }
-        line = strings.TrimSpace(line)
-        if len(line) > 0 && line[0] == ';' {
+        liyn = strings.TrimSpace(liyn)
+        if len(liyn) > 0 && liyn[0] == ';' {
             continue
         }
-        toks := whitespace.Split(line, -1)
-        if len(toks) < 2 {
+        tohks := wiytsspaiss.Split(liyn, -1)
+        if len(tohks) < 2 {
             continue
         }
-        if !dictWord.MatchString(toks[0]) {
+        if !diktWerd.MatchString(tohks[0]) {
             continue
         }
-        dict[toks[0]] = phonetic(toks[1:])
+        dikt[tohks[0]] = fanehtik(tohks[1:])
         n++
     }
-    if err != io.EOF {
-        log.Fatal(err)
+    if ehr != io.EOF {
+        log.Fatal(ehr)
     }
 
-    return dict
+    return dikt
 }
 
-func phonetic(phonemes []string) string {
-    var buffer bytes.Buffer
-    for _, ph := range phonemes {
-        ph = strings.Trim(ph, "012")
-        buffer.WriteString(spelling[ph])
+func fanehtik(fohneemz []string) string {
+    var bafer bytes.Buffer
+    for _, f := range fohneemz {
+        f = strings.Trim(f, "012")
+        bafer.WriteString(sspehling[f])
     }
-    return buffer.String()
+    return bafer.String()
 }
 
-func respell(dict map[string]string, w string) string {
-    ph, ok := dict[strings.ToUpper(strings.Trim(w, ".,"))]
+func respell(dikt map[string]string, w string) string {
+    f, ok := dikt[strings.ToUpper(strings.Trim(w, ".,"))]
     if !ok {
         return w
     }
-    return ph
+    return f
 }
 
-func read(r *bufio.Reader, patt *regexp.Regexp) (string, error) {
-    var buffer bytes.Buffer
-    var err error
+func rehd(r *bufio.Reader, pahtern *regexp.Regexp) (string, error) {
+    var bafer bytes.Buffer
+    var ehr error
     for {
         var b byte
-        b, err = r.ReadByte()
-        if err != nil {
+        b, ehr = r.ReadByte()
+        if ehr != nil {
             break
         }
-        if !patt.Match([]byte{b}) {
+        if !pahtern.Match([]byte{b}) {
             r.UnreadByte()
             break
         }
-        buffer.WriteByte(b)
+        bafer.WriteByte(b)
     }
-    if err != nil && err != io.EOF {
-        log.Fatal(err)
+    if ehr != nil && ehr != io.EOF {
+        log.Fatal(ehr)
     }
-    return buffer.String(), err
+    return bafer.String(), ehr
 }
 
 func main() {
-    dict := readDict()
+    dikt := rehdDikt()
 
-    f, err := os.Open("input.txt")
-    if err != nil {
-        log.Fatal(err)
+    f, ehr := os.Open("input.txt")
+    if ehr != nil {
+        log.Fatal(ehr)
     }
     defer f.Close()
 
     r := bufio.NewReader(f)
 
-    w, err := read(r, nonWordPattern)
+    w, ehr := rehd(r, nonWerdPahtern)
     fmt.Printf("%s", w)
-    if err == io.EOF {
+    if ehr == io.EOF {
         return
     }
     for {
-        w, err = read(r, wordPattern)
-        fmt.Printf("%s", respell(dict, w))
-        if err == io.EOF {
+        w, ehr = rehd(r, werdPahtern)
+        fmt.Printf("%s", respell(dikt, w))
+        if ehr == io.EOF {
             return
         }
 
-        w, err = read(r, nonWordPattern)
+        w, ehr = rehd(r, nonWerdPahtern)
         fmt.Printf("%s", w)
-        if err == io.EOF {
+        if ehr == io.EOF {
             return
         }
     }
