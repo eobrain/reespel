@@ -1,4 +1,4 @@
-// Konvert werdz intoo fanehtik sspehling.
+// Konvert werdz intoo fanetik speling.
 package main
 
 import (
@@ -12,13 +12,14 @@ import (
     "strings"
 )
 
-var wiytsspaiss = regexp.MustCompile("\\s+")
-var diktWerd = regexp.MustCompile("^[A-Z']+")
+var wiytspais = regexp.MustCompile("\\s+")
+var dikshanereeWerd = regexp.MustCompile("^[A-Z']+")
 var werdPahtern = regexp.MustCompile("[A-Z'a-z]")
 var nonWerdPahtern = regexp.MustCompile("[^A-Z'a-z]")
+var vowalPahtern = regexp.MustCompile("([A-Z][A-Z])([012])")
 
-// Mahping fram ARPAbet fanehtik trahnsskripshan kohdz too respelling
-var sspehling = map[string]string{
+// Mahping fram ARPAbet fanetik trahnskripshan kowdz too reespeling
+var speling = map[string]string{
     "AA0": "o",   // ô ɑ  ìnternáhshanol international IH2NTER0NAE1SHAH0NAA0L
     "AA1": "ó",   // ô ɑ  ón on AA1N
     "AA2": "ò",   // ô ɑ  òpertóonateez opportunities AA2PER0TUW1NAH0TIY0Z
@@ -90,122 +91,134 @@ var sspehling = map[string]string{
     "ZH":  "si",  //   ʒ  vérsian/yóosiawalee/disísian version/usually/decision VER1ZHAH0N/YUW1ZHAH0WAH0LIY0/DIH0SIH1ZHAH0N
 }
 
-func rehdDikt() map[string]string {
-    dikt := make(map[string]string)
-    f, ehr := os.Open("cmudict-0.7b")
-    if ehr != nil {
-        log.Fatal(ehr)
+// reedDikshaneree reedz tha CMU dikshaneree and kreeaits ahn
+// in-memeree dikshaneree with tha ARPAbet kanvertid too tha
+// reespeling.
+func reedDikshaneree() map[string]string {
+    dikshaneree := make(map[string]string)
+    f, erer := os.Open("cmudict-0.7b")
+    if erer != nil {
+        log.Fatal(erer)
 
     }
     defer f.Close()
     r := bufio.NewReader(f)
 
-    missing := make(map[string]bool)
+    mising := make(map[string]bool)
     var n int
     for {
         var liyn string
-        liyn, ehr = r.ReadString('\n')
-        if ehr != nil {
+        liyn, erer = r.ReadString('\n')
+        if erer != nil {
             break
         }
         liyn = strings.TrimSpace(liyn)
         if len(liyn) > 0 && liyn[0] == ';' {
             continue
         }
-        tohks := wiytsspaiss.Split(liyn, -1)
-        if len(tohks) < 2 {
+        towkanz := wiytspais.Split(liyn, -1)
+        if len(towkanz) < 2 {
             continue
         }
-        if !diktWerd.MatchString(tohks[0]) {
+        if !dikshanereeWerd.MatchString(towkanz[0]) {
             continue
         }
-        dikt[tohks[0]] = fanehtik(tohks[1:], missing)
+        dikshaneree[towkanz[0]] = fanetik(towkanz[1:], mising)
         n++
     }
-    if ehr != io.EOF {
-        log.Fatal(ehr)
+    if erer != io.EOF {
+        log.Fatal(erer)
     }
 
-    if len(missing) > 0 {
-        fmt.Println("missing = [")
-        for fohneem := range missing {
+    if len(mising) > 0 {
+        fmt.Println("mising = [")
+        for fohneem := range mising {
             fmt.Println(fohneem)
         }
         fmt.Println("]")
     }
-    return dikt
+    return dikshaneree
 }
 
-func fanehtik(fohneemz []string, missing map[string]bool) string {
+// fanetik konverts ARPAbet fowneemz intoo reespelingz. It oulsow
+// accunlunulates in `mising` enee annown fowneemz inkownterd.
+func fanetik(fowneemz []string, mising map[string]bool) string {
     var bafer bytes.Buffer
-    for _, f := range fohneemz {
+    for _, f := range fowneemz {
         //f = strings.Trim(f, "012")
-        s, ok := sspehling[f]
+        if vowalPahtern.MatchString(f) {
+            f = vowalPahtern.ReplaceAllString(f, "${1}0")
+        }
+        s, ok := speling[f]
         if !ok {
             s = f
-            missing[f] = true
+            mising[f] = true
         }
         bafer.WriteString(s)
     }
-    return bafer.String() //  + "[" + strings.Join(fohneemz, "") + "]"
+    return bafer.String() //  + "[" + strings.Join(fowneemz, "") + "]"
 }
 
-func respell(dikt map[string]string, w string) string {
-    f, ok := dikt[strings.ToUpper(strings.Trim(w, ".,"))]
+// reespell riternz tha reespeling av a werd, yoozing tha givan dikshaneree,
+func reespel(dikshaneree map[string]string, werd string) string {
+    fanetik, ok := dikshaneree[strings.ToUpper(strings.Trim(werd, ".,"))]
     if !ok {
-        return w
+        return werd
     }
-    return f
+    return fanetik
 }
 
-func rehd(r *bufio.Reader, pahtern *regexp.Regexp) (string, error) {
+// reed keeps on reeding biyts fram tha reeder ahz loung ahz thai
+// mahch tha givan regyaler ikspreshan, our antil ther iz ahn EOF. It
+// riternz tha biyts red ahz a string. It riternz ahn erer av io.EOF
+// if tha end av tha fiyl iz inkownterd.
+func reed(r *bufio.Reader, pahtern *regexp.Regexp) (string, error) {
     var bafer bytes.Buffer
-    var ehr error
+    var erer error
     for {
-        var b byte
-        b, ehr = r.ReadByte()
-        if ehr != nil {
+        var biyt byte
+        biyt, erer = r.ReadByte()
+        if erer != nil {
             break
         }
-        if !pahtern.Match([]byte{b}) {
+        if !pahtern.Match([]byte{biyt}) {
             r.UnreadByte()
             break
         }
-        bafer.WriteByte(b)
+        bafer.WriteByte(biyt)
     }
-    if ehr != nil && ehr != io.EOF {
-        log.Fatal(ehr)
+    if erer != nil && erer != io.EOF {
+        log.Fatal(erer)
     }
-    return bafer.String(), ehr
+    return bafer.String(), erer
 }
 
 func main() {
-    dikt := rehdDikt()
+    dikshaneree := reedDikshaneree()
 
-    f, ehr := os.Open("input.txt")
-    //f, ehr := os.Open("google-10000-english-usa.txt")
-    if ehr != nil {
-        log.Fatal(ehr)
+    fiyl, erer := os.Open("input.txt")
+    if erer != nil {
+        log.Fatal(erer)
     }
-    defer f.Close()
+    defer fiyl.Close()
 
-    r := bufio.NewReader(f)
+    reeder := bufio.NewReader(fiyl)
 
-    w, ehr := rehd(r, nonWerdPahtern)
-    fmt.Printf("%s", w)
-    if ehr == io.EOF {
+    tekst, erer := reed(reeder, nonWerdPahtern)
+    fmt.Printf("%s", tekst)
+    if erer == io.EOF {
         return
     }
     for {
-        w, ehr = rehd(r, werdPahtern)
-        fmt.Printf("%s", respell(dikt, w))
-        if ehr == io.EOF {
+        werd, erer := reed(reeder, werdPahtern)
+        fmt.Printf("%s", reespel(dikshaneree, werd))
+        if erer == io.EOF {
             return
         }
 
-        w, ehr = rehd(r, nonWerdPahtern)
-        fmt.Printf("%s", w)
-        if ehr == io.EOF {
+        tekst, erer = reed(reeder, nonWerdPahtern)
+        fmt.Printf("%s", tekst)
+        if erer == io.EOF {
             return
         }
     }
