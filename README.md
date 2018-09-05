@@ -12,8 +12,8 @@ It yoosaz tha fanetik infourmaishan in a dikshaneree too kowvert werdz
 intoo fowneemz, and then mahps them too a speling diziynd too bee
 intooativ too Ingglish reederz.
 
-Too bild and triy owt this yoo wil need tha Gow lahnggwaj and tha `maik`
-yootilatee.  Ahfter klowning this reepow, simplee tiyp `maik` too bild tha
+Too bild and triy owt this yoo wil need tha Gow lahnggwaj and tha `make`
+yootilatee.  Ahfter klowning this reepow, simplee tiyp `make` too bild tha
 `reespel` executable and ran it on sam igzahmpalz.
 
 Tha bild ahkchooalee hahpanz in too staijiz.

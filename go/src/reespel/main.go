@@ -39,11 +39,18 @@ func reespelWerd(werd string) string {
     return apliyKais(werd, fanetik)
 }
 
+var escapeDelimiters = []string{
+    "``",  // don't respell markdown-style backquates
+    "/ ,", // don't respell URLs
+}
+
+const noEscape = -1
+
 // reed keeps on reeding biyts fram tha reeder ahz loung ahz thai
 // mahch tha givan regyaler ikspreshan, our antil ther iz ahn EOF. It
 // riternz tha biyts red ahz a string. It riternz ahn erer av io.EOF
 // if tha end av tha fiyl iz inkownterd.
-func reed(r *bufio.Reader, pahtern *regexp.Regexp) (string, bool, error) {
+func reed(r *bufio.Reader, pahtern *regexp.Regexp) (string, int, error) {
     var bafer bytes.Buffer
     var erer error
     for {
@@ -52,8 +59,10 @@ func reed(r *bufio.Reader, pahtern *regexp.Regexp) (string, bool, error) {
         if erer != nil {
             break
         }
-        if biyt == '/' {
-            return bafer.String(), true, erer
+        for i, d := range escapeDelimiters {
+            if biyt == d[0] {
+                return bafer.String(), i, erer
+            }
         }
         if !pahtern.Match([]byte{biyt}) {
             r.UnreadByte()
@@ -64,12 +73,12 @@ func reed(r *bufio.Reader, pahtern *regexp.Regexp) (string, bool, error) {
     if erer != nil && erer != io.EOF {
         log.Fatal(erer)
     }
-    return bafer.String(), false, erer
+    return bafer.String(), noEscape, erer
 }
 
-func verbatim(r *bufio.Reader) (string, error) {
+func verbatim(r *bufio.Reader, delim string) (string, error) {
     var bafer bytes.Buffer
-    bafer.WriteByte('/')
+    bafer.WriteByte(delim[0])
     var erer error
     for {
         var biyt byte
@@ -78,7 +87,7 @@ func verbatim(r *bufio.Reader) (string, error) {
             break
         }
         bafer.WriteByte(biyt)
-        if biyt == '\n' {
+        if biyt == delim[1] {
             return bafer.String(), erer
         }
     }
@@ -93,8 +102,8 @@ func main() {
 
     tekst, escape, erer := reed(reeder, nonWerdPahtern)
     fmt.Printf("%s", tekst)
-    if escape {
-        tekst, erer := verbatim(reeder)
+    if escape != noEscape {
+        tekst, erer := verbatim(reeder, escapeDelimiters[escape])
         fmt.Printf("%s", tekst)
         if erer == io.EOF {
             return
@@ -106,8 +115,8 @@ func main() {
     for {
         werd, escape, erer := reed(reeder, werdPahtern)
         fmt.Printf("%s", reespelWerd(werd))
-        if escape {
-            tekst, erer := verbatim(reeder)
+        if escape != noEscape {
+            tekst, erer := verbatim(reeder, escapeDelimiters[escape])
             fmt.Printf("%s", tekst)
             if erer == io.EOF {
                 return
@@ -119,8 +128,8 @@ func main() {
 
         tekst, escape, erer = reed(reeder, nonWerdPahtern)
         fmt.Printf("%s", tekst)
-        if escape {
-            tekst, erer := verbatim(reeder)
+        if escape != noEscape {
+            tekst, erer := verbatim(reeder, escapeDelimiters[escape])
             fmt.Printf("%s", tekst)
             if erer == io.EOF {
                 return
