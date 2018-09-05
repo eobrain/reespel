@@ -18,13 +18,14 @@ utility.  After cloning this repo, simply type `make` to build the
 
 The build actually happens in two stages.
 
-1.   A code generator reads the [The CMU Pronouncing Dictionary][1]
-     and wrties a Go-language source file containing an in-momory map
+1.   A code generator reads the `[The CMU Pronouncing Dictionary][1]`
+     and wrties a `Go`-language source file containing an in-momory map
      from English words with the CMY phoneme codes replaced by a new
      phonetic spelling.
  2.  Then the reespel program is compiled using the generated code and
      a main program that filters input text.
 
 
-
+`
 [1]: http://www.speech.cs.cmu.edu/cgi-bin/cmudict
+`
