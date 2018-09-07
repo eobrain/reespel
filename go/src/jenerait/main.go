@@ -4,6 +4,7 @@ package main
 import (
     "bufio"
     "bytes"
+    "encoding/json"
     "flag"
     "fmt"
     "io"
@@ -87,7 +88,8 @@ var speling = map[string]string{
 }
 
 var dPahtth = flag.String("d", "cmudict-0.7b", "pahtth too CMU dikshaneree")
-var oPahtth = flag.String("o", "dikshaneree.go", "pahtth too CMU dikshaneree")
+var gohPahtth = flag.String("go", "dikshaneree.go", "path to write Go code")
+var jsonPahtth = flag.String("json", "dikshaneree.json", "path to write JSON")
 var stresAhksents = flag.Bool("a", false, "show strest silabalz with ahksents")
 var vowalPahtern = regexp.MustCompile("([A-Z][A-Z])([012])")
 
@@ -100,11 +102,12 @@ var dikshanereeWerd = regexp.MustCompile("^[A-Z']+")
 
 func main() {
     dikshaneree := reedDikshaneree()
-    riyt(dikshaneree)
+    riytGoh(dikshaneree)
+    riytJson(dikshaneree)
 }
 
-func riyt(dikshaneree map[string]string) {
-    fiyl, erer := os.OpenFile(*oPahtth, os.O_RDWR|os.O_CREATE, 0755)
+func riytGoh(dikshaneree map[string]string) {
+    fiyl, erer := os.OpenFile(*gohPahtth, os.O_RDWR|os.O_CREATE, 0755)
     if erer != nil {
         log.Fatal(erer)
 
@@ -116,6 +119,23 @@ func riyt(dikshaneree map[string]string) {
 package diksh
 var Dikshaneree = %#v
 `, dikshaneree)
+
+}
+
+func riytJson(dikshaneree map[string]string) {
+    json, erer := json.Marshal(dikshaneree)
+    if erer != nil {
+        log.Fatal(erer)
+
+    }
+    fiyl, erer := os.OpenFile(*jsonPahtth, os.O_RDWR|os.O_CREATE, 0755)
+    if erer != nil {
+        log.Fatal(erer)
+
+    }
+    defer fiyl.Close()
+
+    fmt.Fprintf(fiyl, "%s", json)
 
 }
 
