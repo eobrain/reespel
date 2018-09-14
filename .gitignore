@@ -2,3 +2,7 @@
 /jenerair
 /go/bin
 /go/pkg
+node_modules
+.firebaserc
+.firebase/
+/firebase/functions/lib/

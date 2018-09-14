@@ -90,6 +90,7 @@ var speling = map[string]string{
 var dPahtth = flag.String("d", "cmudict-0.7b", "pahtth too CMU dikshaneree")
 var gohPahtth = flag.String("go", "dikshaneree.go", "path to write Go code")
 var jsonPahtth = flag.String("json", "dikshaneree.json", "path to write JSON")
+var tsPahtth = flag.String("ts", "dikshaneree.ts", "path to write Typescript")
 var stresAhksents = flag.Bool("a", false, "show strest silabalz with ahksents")
 var vowalPahtern = regexp.MustCompile("([A-Z][A-Z])([012])")
 
@@ -128,14 +129,21 @@ func riytJson(dikshaneree map[string]string) {
         log.Fatal(erer)
 
     }
-    fiyl, erer := os.OpenFile(*jsonPahtth, os.O_RDWR|os.O_CREATE, 0755)
+    jsonFiyl, erer := os.OpenFile(*jsonPahtth, os.O_RDWR|os.O_CREATE, 0755)
     if erer != nil {
         log.Fatal(erer)
 
     }
-    defer fiyl.Close()
+    defer jsonFiyl.Close()
+    tsFiyl, erer := os.OpenFile(*tsPahtth, os.O_RDWR|os.O_CREATE, 0755)
+    if erer != nil {
+        log.Fatal(erer)
 
-    fmt.Fprintf(fiyl, "%s", json)
+    }
+    defer tsFiyl.Close()
+
+    fmt.Fprintf(jsonFiyl, "%s", json)
+    fmt.Fprintf(tsFiyl, "export const dikshaneree = %s", json)
 
 }
 
